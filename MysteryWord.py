@@ -1,36 +1,30 @@
-from random import choice 
 from WordGameController import WordGameController
 
 class MysteryWord:
     """
-    APPLICATION LAYER (MAIN LAYER)
-    methods - 
-    instance variables - {
-        difficulty the user has selected,
-        number of guesses left,
-        WordList instance,
-        WordGameController instance,
-    }
+    APPLICATION LAYER
+    Pulls together controller functions to make the program run.
     """
     
     def __init__(self):
         self.game_controller = WordGameController()
 
     def runGame(self):
+        """
+        Calls game controller functions to run the game.
+        """
         self.game_controller.reset_controller()
         self.game_controller.entire_game()
-        self.playAgain()
+        anotherPlay = self.game_controller.playAgain()
 
-    def playAgain(self):
-        playAgain = input("Do you want to play again? (Y or N) ")
-        if playAgain == "Y":
+        if anotherPlay:
             self.runGame()
-        else:
-            print("Thanks for playing!")
-            pass
 
         
-    def printTest(self):
+    def debugPrint(self):
+        """
+        Print statements used to debug.
+        """
         print(self.game_controller.mystery_word)
         print(self.game_controller.guessed)
         #print(self.game_controller.available_words.hard)

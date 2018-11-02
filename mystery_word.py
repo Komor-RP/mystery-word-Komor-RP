@@ -1,4 +1,4 @@
 from MysteryWord import MysteryWord
 
-hangman = MysteryWord()
-hangman.runGame()
+word_game = MysteryWord()
+word_game.runGame()
