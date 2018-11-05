@@ -25,7 +25,8 @@ class MysteryWord:
         """
         Print statements used to debug.
         """
-        print(self.game_controller.mystery_word)
         print(self.game_controller.guessed)
         #print(self.game_controller.available_words.hard)
-        pass
+
+word_game = MysteryWord()
+word_game.runGame()

@@ -15,7 +15,7 @@ class WordList:
         """
         This gets the word list file, reads it, and feeds 3 separate lists into the WordList Data Layer
         """
-        with open('/Users/fan/Documents/Momentum/week-1/mystery-word-Komor-RP/words.txt') as word_file:
+        with open('words.txt') as word_file:
             word_list = word_file.read().splitlines() 
 
         self.easy =  [ word for word in word_list if (4 <= len(word) <= 6) ]

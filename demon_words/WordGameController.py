@@ -4,33 +4,24 @@ from WordList import WordList
 class WordGameController:
     """
     PRESENTATION LAYER
-    Runs game logic and updates terminal
+    Runs game logic and updates terminal prints
     """
     
     def __init__(self):
         self.available_words = WordList()
-        self.guess_limit = 8
-        self.diff = None
-        self.mystery_word = None
+        self.guess_limit = None
         self.guessed = set()
         self.wrong = 0
         self.display = None
         self.status = None
         
 
-    def prompt_difficulty(self):
-        """
-        Prompts user for difficulty and sets the cleaned variable to the instance variable
-        """
-        diff = input("Select your difficulty (easy, medium, hard): ")
-        self.diff = self.clean_input(diff)
-
     def entire_game(self):
         """
         Pulls together the controlller methods needed to run a game to completion.
         """
-        self.prompt_difficulty()
         self.set_up_word()
+        self.prompt_num_guesses()
         self.runGame()
         
     
@@ -38,41 +29,51 @@ class WordGameController:
         """
         Resets instance variables to play another game.
         """
-        self.diff = None
-        self.mystery_word = None
+
         self.guessed = set()
         self.wrong = 0
         self.display = None
         self.status = None
 
+    def prompt_num_guesses(self):
+        """
+        Asks player how many guesses they would like and stores it into the game instance.
+        """
+
+        try:
+            self.guess_limit = int(input("How many guesses would you like? "))
+            if (self.guess_limit > 24) or (self.guess_limit < 1):
+                print("Invalid number of guesses")
+                raise ValueError
+        except ValueError:
+            self.prompt_num_guesses()
+
     def set_up_word(self):
         """
         Instructs data layer to pull the word list.
-        Gets a random word based on difficulty.
+        Sets up a display of the required length.
         """
-        self.available_words.get_wordlist()
-        if (self.diff == "EASY"): 
-            self.mystery_word = self.clean_input(self.available_words.get_random_word("EASY"))
-        elif (self.diff == "MEDIUM"):
-            self.mystery_word = self.clean_input(self.available_words.get_random_word("MEDIUM"))
-        else:
-            self.mystery_word = self.clean_input(self.available_words.get_random_word("HARD"))
 
-        self.display =  *(("_", char) for char in self.mystery_word ),
-    
+        self.available_words.get_wordlist()
+        word_length = self.available_words.get_random_word()
+        self.display =  "".join( ["_" for char in range(word_length)] )
+
+
     def runGame(self):
         """
-        Updates interface and tells the game to continue prompting responses until the game ends.
+        Updates interface and tells the game to continue prompting responses 
+        until requirements are met to end the game (win or lose)
         """
-        self.update_interface()
+
+        self.update_interface(self.display)
         while( self.wrong < self.guess_limit and self.status == None):
             self.prompt_guess()
         
         self.endGame(self.status)
 
-    def playAgain(self):
+    def playAgain(self) -> bool :
         """
-        Asks user if they want to play another game. Returns True or False
+        Asks user if they want to play another game.
         """
 
         playAgain = input("Do you want to play again? (Y or N) ")
@@ -110,9 +111,14 @@ class WordGameController:
         elif guess in self.guessed:
             print("You have already guessed this letter.")
             raise ValueError()
+
         self.guessed.add(guess)
 
-        if guess in self.mystery_word:
+
+        mapped_display = self.available_words.get_evil_word(guess)
+
+
+        if guess in mapped_display:
             print(f'Yes! "{guess}" is in the mystery word!')
         else:
             self.wrong += 1
@@ -120,30 +126,46 @@ class WordGameController:
             print(f'You have {self.guess_limit - self.wrong} guesses left.')
 
         
-        self.update_interface()
+        self.update_interface(mapped_display)
         
 
 
-    def update_interface(self):
+    def update_interface(self, display):
         """
         Called by handle_guess method to update the interface and show the user where they are in the game.
         Also checks if there are any unfilled spots in the display, meaning the user has won, or if the user is 
         out of guesses, meaning they lost.
-        """
 
-        result = "win"
+        """
+        #union of old display and new display
+        def unite_displays(display):
+            new_string = ""
+            for i in range(len(display)):
+                if (display[i]) != "_":
+                    new_string += display[i]
+                elif self.display != "_":
+                    new_string += self.display[i]
+                else:
+                    new_string += "_"
+            
+            return new_string
         
-        for letter in self.display:
-            if (letter[1] in self.guessed):
-                print(letter[1], end=" ")
+        self.display = unite_displays(display)
+        
+
+        printed_display = ""
+        for i in range(len(self.display)):
+            if self.display[i] in self.guessed:
+                printed_display += self.display[i]
             else:
-                result = "notwin"
-                print(letter[0], end=" ")
-        print("")
-        
-        if result == "win":
+                printed_display += "_"
+            printed_display += " "
+
+        print(printed_display)
+
+        if "_" not in printed_display:
             self.status = "win"
-        elif self.wrong == 8:
+        elif self.wrong == self.guess_limit:
             self.status = "loss"
 
 
@@ -153,7 +175,7 @@ class WordGameController:
         """
         if result == "loss":
             print("You Lost.")
-            print(f'The mystery word was {self.mystery_word}')
+            print(f'The mystery word was {self.available_words.reveal_word()}')
         else:
             print("You Won!")
             
