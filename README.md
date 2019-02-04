@@ -13,7 +13,7 @@
 5. Enter Y to play again, or N to stop.
 
 
-## Steps to Run The Game (Normal Mode)
+## Steps to Run The Game (Hard Mode)
 
 1. Import Files
 
